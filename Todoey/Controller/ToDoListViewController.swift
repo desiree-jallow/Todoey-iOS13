@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class ToDoListViewController: UITableViewController {
     
@@ -14,16 +15,17 @@ class ToDoListViewController: UITableViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 
     override func viewDidLoad() {
         super.viewDidLoad()
        
         
         print(dataFilePath)
+       
         // Do any additional setup after loading the view
         
-//        loadItems()
+        loadItems()
         
     }
 
@@ -66,17 +68,15 @@ class ToDoListViewController: UITableViewController {
     
     }
     
-//    func loadItems() {
-//        if let data = try? Data(contentsOf: dataFilePath!) {
-//            let decoder = PropertyListDecoder()
-//            do {
-//                try itemArray = decoder.decode([Item].self, from: data)
-//            } catch  {
-//                print("Error decoding item array, \(error)")
-//            }
-//
-//        }
-//    }
+    func loadItems() {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch  {
+            print("Error fetching data from context \(error)")
+        }
+         
+    }
     
 }
 //MARK: - UITableViewDataSource Methods
