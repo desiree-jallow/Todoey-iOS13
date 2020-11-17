@@ -68,17 +68,17 @@ class ToDoListViewController: UITableViewController {
     
     }
     
-    func loadItems() {
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
+       
         do {
             itemArray = try context.fetch(request)
         } catch  {
             print("Error fetching data from context \(error)")
         }
-         
+        tableView.reloadData()
     }
-    
 }
+
 //MARK: - UITableViewDataSource Methods
 extension ToDoListViewController {
     
@@ -99,18 +99,44 @@ extension ToDoListViewController {
                
            return cell
     }
-   
-    
 }
 //MARK: - UITableViewDelegate Methods
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         itemArray[indexPath.row].done.toggle()
+        
+//        context.delete(itemArray[indexPath.row])
+//
+//        itemArray.remove(at: indexPath.row)
         saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
         
+    }
+}
+//MARK: - UISearchBarDelegate
+extension ToDoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request)
+      
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+            
+        }
     }
 }
 
