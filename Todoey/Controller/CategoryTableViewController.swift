@@ -16,7 +16,7 @@ class CategoryTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
+        loadCategories()
     }
 
 //MARK: - Add New Categories
@@ -33,7 +33,7 @@ class CategoryTableViewController: UITableViewController {
             
             categoryArray.append(newCategory)
             
-            saveItems()
+            saveCategories()
         }
         
         alert.addTextField { (alertTextField) in
@@ -66,11 +66,9 @@ class CategoryTableViewController: UITableViewController {
                return cell
         }
     
-   
-    
     //MARK: - Data Manipulation Methods
     //save data and load data
-    func loadItems(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
+    func loadCategories(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
        
         do {
             categoryArray = try context.fetch(request)
@@ -80,7 +78,7 @@ class CategoryTableViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func saveItems() {
+    func saveCategories() {
        
         do {
             try context.save()
@@ -93,4 +91,14 @@ class CategoryTableViewController: UITableViewController {
     }
     
     //MARK: - TableView Delegate Methods
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "goToItems", sender: self)
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationVC = segue.destination as! ToDoListViewController
+        
+        if let indexPath = tableView.indexPathForSelectedRow {
+            destinationVC.selectedCategory = categoryArray[indexPath.row]
+        }
+    }
 }
