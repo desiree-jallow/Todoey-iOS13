@@ -46,7 +46,6 @@ class CategoryTableViewController: UITableViewController {
     
     
     //MARK: - TableView Datasource Methods
-    //display categories in persistant container
         
         override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             return categories?.count ?? 1

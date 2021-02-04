@@ -9,7 +9,7 @@
 import Foundation
 import RealmSwift
 
-class Category: Object {
+class Category : Object {
     @objc dynamic var name: String = ""
     //forward relationship
     let items = List<Item>()
