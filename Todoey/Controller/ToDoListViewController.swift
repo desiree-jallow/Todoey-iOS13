@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class ToDoListViewController: UITableViewController {
+class ToDoListViewController: SwipeTableViewController {
     
     var items: Results<Item>?
     let realm = try! Realm()
@@ -74,6 +74,20 @@ class ToDoListViewController: UITableViewController {
         items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
     }
+    
+    //MARK: - Delete Data From Swipe
+    override func updateModel(at indexPath: IndexPath) {
+        
+            if let itemForDeletion = items?[indexPath.row] {
+                do {
+                    try realm.write {
+                        realm.delete(itemForDeletion)
+                    }
+                } catch  {
+                    print("Error deleting item, \(error)")
+            }
+        }
+    }
 }
 
 //MARK: - UITableViewDataSource Methods
@@ -85,7 +99,7 @@ extension ToDoListViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Fetch a cell of the appropriate type.
-           let cell = tableView.dequeueReusableCell(withIdentifier: "todoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = items?[indexPath.row] {
             cell.accessoryType = item.done ? .checkmark : .none
@@ -99,6 +113,8 @@ extension ToDoListViewController {
            return cell
     }
 }
+
+
 //MARK: - UITableViewDelegate Methods
 extension ToDoListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

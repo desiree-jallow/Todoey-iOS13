@@ -10,7 +10,7 @@ import UIKit
 import RealmSwift
 
 
-class CategoryTableViewController: UITableViewController {
+class CategoryTableViewController: SwipeTableViewController {
     let realm = try! Realm()
     
     var categories: Results<Category>?
@@ -18,6 +18,7 @@ class CategoryTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+        
     }
 
 //MARK: - Add New Categories
@@ -53,12 +54,11 @@ class CategoryTableViewController: UITableViewController {
         
         override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             // Fetch a cell of the appropriate type.
-               let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
-            
+            let cell = super.tableView(tableView, cellForRowAt: indexPath)
             
                // Configure the cell’s contents.
             cell.textLabel!.text = categories?[indexPath.row].name ?? "No Categories added yet"
-                   
+        
                return cell
         }
     
@@ -84,11 +84,26 @@ class CategoryTableViewController: UITableViewController {
         tableView.reloadData()
     
     }
+    //MARK: - Delete Data From Swipe
+    override func updateModel(at indexPath: IndexPath) {
+        
+            if let categoryForDeletion = categories?[indexPath.row] {
+                do {
+                    try realm.write {
+                        realm.delete(categoryForDeletion)
+                    }
+                } catch  {
+                    print("Error deleting category, \(error)")
+            }
+        }
+    }
     
     //MARK: - TableView Delegate Methods
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! ToDoListViewController
         
@@ -97,3 +112,4 @@ class CategoryTableViewController: UITableViewController {
         }
     }
 }
+
