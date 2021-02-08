@@ -8,11 +8,14 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class ToDoListViewController: SwipeTableViewController {
     
     var items: Results<Item>?
     let realm = try! Realm()
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var selectedCategory : Category? {
         didSet {
@@ -25,12 +28,23 @@ class ToDoListViewController: SwipeTableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        tableView.separatorStyle = .none
         
-        print(dataFilePath)
-       
-        // Do any additional setup after loading the view
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.color {
+            title = selectedCategory!.name
+//            searchBar.barTintColor = UIColor(hexString: colorHex)
+            if let navBarColor = UIColor(hexString: colorHex) {
+                
+                navigationController?.navigationBar.backgroundColor = navBarColor
+                
+                navigationController?.navigationBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                
+                navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
+            }
+        }
     }
 
     //MARK: - Add New Items
@@ -106,6 +120,12 @@ extension ToDoListViewController {
             
                // Configure the cell’s contents.
             cell.textLabel!.text = item.title
+            
+            if let color = UIColor(hexString: selectedCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(items!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
+           
         } else {
             cell.textLabel?.text = "No items added"
         }
